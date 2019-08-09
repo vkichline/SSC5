@@ -12,6 +12,7 @@
 #include      "Log.h"                // Local
 #include      "MQTT.h"               // Local
 #include      "AppConfig.h"          // Local
+#include      "Sensor.h"             // Local
 
 
 #define       BAUD_RATE              115200
@@ -154,6 +155,9 @@ void setup() {
     initializeWiFi();
     initializeMQTT(config.broker());
   }
+
+  // Test code:
+  Sensor* sensor = new Sensor(&mqtt, &Log, "test");
 }
 
 void loop() {
