@@ -1,0 +1,4 @@
+* Experimental configuration file
+Name=Library
+Broker=ThingOne.local
+Delay=30000
