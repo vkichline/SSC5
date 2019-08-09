@@ -12,7 +12,7 @@
 #include      "Log.h"                // Local
 #include      "MQTT.h"               // Local
 #include      "AppConfig.h"          // Local
-#include      "Sensor.h"             // Local
+#include      "PirSensor.h"          // Local
 
 
 #define       BAUD_RATE              115200
@@ -28,7 +28,8 @@ MQTT          mqtt(mqttClient);
 
 SHT3X         sht30(0x45);                              // Tempurature/humidity shield
 BH1750        light(0x23);                              // Ambient light shield
-const int     PIR                   = D3;               // Wemos PIR Shield
+
+PirSensor*    pirSensor;
 
 bool          initialized           = false;            // Set to true if Config works as expected
 String        progVersion           = "0.4.1";
@@ -36,7 +37,6 @@ String        feed_Vcc;                                 // Set up in initMQTTFee
 String        feed_Temp;                                // Set up in initMQTTFeeds
 String        feed_Hum;                                 // Set up in initMQTTFeeds
 String        feed_Lux;                                 // Set up in initMQTTFeeds
-String        feed_Pir;                                 // Set up in initMQTTFeeds
 
 
 // Callback from WiFiManager when the AP is being started for picking network.
@@ -106,10 +106,6 @@ void initMQTTFeeds() {
   feed_Lux += config.name();
   feed_Lux += "/lux";
   Log.info("feed_Lux set to %s\n", feed_Lux.c_str());
-  feed_Pir = "sensors/";
-  feed_Pir += config.name();
-  feed_Pir += "/pir";
-  Log.info("feed_Pir set to %s\n", feed_Pir.c_str());
 }
 
 
@@ -146,18 +142,19 @@ bool initializeConfig() {
 ADC_MODE(ADC_VCC);  // Set up chip to report VCC voltage on AO using ESP.getVcc()
 
 void setup() {
-  pinMode(PIR, INPUT);  // Wemos PIR shield, digial input
   Log.init(BAUD_RATE, LOG_LEVEL);
   Log.info("\nSystem startup: version %s\n", progVersion.c_str());
   initialized = initializeConfig();
   if(initialized) {
     Log.info("Configuration successful.\n");
+    
+    pirSensor = new PirSensor(config, mqtt, Log, "pir");
+    if(!pirSensor->init()) {
+      Log.error("Error initializing PIR Sensor\n");
+    }
     initializeWiFi();
     initializeMQTT(config.broker());
   }
-
-  // Test code:
-  Sensor* sensor = new Sensor(config, mqtt, Log, "test");
 }
 
 void loop() {
@@ -174,15 +171,12 @@ void loop() {
   float  temp       = 0.0;
   float  hum        = 0.0;
   long   lux        = 0;
-  int    pir        = 0;
+
+  pirSensor->begin();
   
   while(millis() < loop_limit) {
     mqtt.ensureConnection();
 
-    // Read the PIR didital state and accumulate average
-    if(HIGH == digitalRead(PIR)) {
-      pir++;
-    }
     // Detect and accumulate the VCC voltage level:
     vcc += (ESP.getVcc() / 1000.0);
     if(0 == sht30.get()) {
@@ -201,8 +195,10 @@ void loop() {
       Log.error("Error reading BH1750 sensor.\n");
     }
 
+    pirSensor->detect();
+
     loop_count++;
-    Log.debug("Sample loop. Count = %d, vcc = %f, temp = %f, hum = %f, lux = %d, pir = %d\n", loop_count, vcc, temp, hum, lux, pir);
+    Log.debug("Sample loop. Count = %d, vcc = %f, temp = %f, hum = %f, lux = %d\n", loop_count, vcc, temp, hum, lux);
     delay(1000);
   }
 
@@ -227,9 +223,6 @@ void loop() {
     Log.info("Lux: %d Lux\n", lux);
     mqtt.publishInt(feed_Lux, lux);
 
-    // Report the average PIR on time as %
-    float fPir = (float)pir * 100.0 / (float)loop_count;
-    Log.info("PIR: %3.2f%%\n", fPir);
-    mqtt.publishFloat(feed_Pir, fPir, 1);
+    pirSensor->report();
   }
 }

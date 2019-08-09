@@ -32,4 +32,4 @@ class AppConfig : Config {
     int     _delay;
 };
 
-#endif FILE_APPCONFIG_H
+#endif // FILE_APPCONFIG_H

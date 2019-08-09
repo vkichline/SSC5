@@ -4,6 +4,10 @@
 #include  "MQTT.h"      // For reporting values to message broker
 #include  "AppConfig.h" // Needed to construct feed name, probably other things as well.
 
+#ifndef FILE_SENSOR_H
+#define FILE_SENSOR_H
+
+
 class Sensor {
   public:
     // Initialize the sensor with mqtt provider, log object and sensor name.
@@ -19,13 +23,15 @@ class Sensor {
     virtual bool init() { return true; }    // Called once, in setup. Return success of initialization
     
     virtual void begin() {}                 // Called at beginning of aquisition loop.
-    virtual void detectAndCollect() {}      // Called repeadedly durring aquisition.
-    virtual void report() {}      
+    virtual void detect() {}                // Called repeadedly durring aquisition.
+    virtual void report() {}                // Called at end of acquisition loop. Reports data to mqtt.
 
-  private:
+  protected:
     AppConfig&  config;
     MQTT&       mqtt;
     Log&        logger;
     const char* name;
     String      feedName;
 };
+
+#endif // FILE_SENSOR_H

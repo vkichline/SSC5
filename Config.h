@@ -72,4 +72,4 @@ class Config {
     ConfigParam*  tail = NULL;
 };
 
-#endif FILE_CONFIG_H
+#endif // FILE_CONFIG_H
