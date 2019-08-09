@@ -1,15 +1,20 @@
 //  Base class for all sensors
 
-#include  "Log.h"   // For reporting status and issues to output
-#include  "MQTT.h"  // For reporting values to message broker
+#include  "Log.h"       // For reporting status and issues to output
+#include  "MQTT.h"      // For reporting values to message broker
+#include  "AppConfig.h" // Needed to construct feed name, probably other things as well.
 
 class Sensor {
   public:
     // Initialize the sensor with mqtt provider, log object and sensor name.
-    Sensor(MQTT* pMqtt, Log* pLog, const char* name){
-      this->pMqtt = pMqtt;
-      this->pLog  = pLog;
-      this->name = name;
+    Sensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+      config(configParam), mqtt(mqttParam), logger(logParam), name(nameParam)
+    {
+      this->feedName = "sensors/";
+      this->feedName += config.name();
+      this->feedName += "/";
+      this->feedName += this->name;
+      logger.info("Created Sensor '%s' with feed name '%s'\n", this->name, this->feedName.c_str());
     }
     virtual bool init() { return true; }    // Called once, in setup. Return success of initialization
     
@@ -18,7 +23,9 @@ class Sensor {
     virtual void report() {}      
 
   private:
-    MQTT*       pMqtt;
-    Log*        pLog;
+    AppConfig&  config;
+    MQTT&       mqtt;
+    Log&        logger;
     const char* name;
+    String      feedName;
 };

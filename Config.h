@@ -33,6 +33,9 @@
 // c_str of the value pointer.
 // bool valid = config.get("DELAY", &valPtr);
 
+#ifndef FILE_CONFIG_H
+#define FILE_CONFIG_H
+
 
 #include <WString.h>
 
@@ -68,3 +71,5 @@ class Config {
     ConfigParam*  head = NULL;
     ConfigParam*  tail = NULL;
 };
+
+#endif FILE_CONFIG_H

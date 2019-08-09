@@ -1,5 +1,8 @@
 // Subclass of Config, customized for this SCC5 implementation.
 
+#ifndef FILE_APPCONFIG_H
+#define FILE_APPCONFIG_H
+
 #include "Config.h"
 
 class AppConfig : Config {
@@ -28,3 +31,5 @@ class AppConfig : Config {
     String  _broker;
     int     _delay;
 };
+
+#endif FILE_APPCONFIG_H

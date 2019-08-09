@@ -157,7 +157,7 @@ void setup() {
   }
 
   // Test code:
-  Sensor* sensor = new Sensor(&mqtt, &Log, "test");
+  Sensor* sensor = new Sensor(config, mqtt, Log, "test");
 }
 
 void loop() {
