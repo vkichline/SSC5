@@ -9,12 +9,7 @@
 #include      <WiFiManager.h>        // https://github.com/tzapu/WiFiManager
 #include      "Log.h"                // Local
 #include      "MQTT.h"               // Local
-#include      "AppConfig.h"          // Local
-#include      "VccSensor.h"          // Local
-#include      "PirSensor.h"          // Local
-#include      "LuxSensor.h"          // Local
-#include      "TempSensor.h"         // Local
-#include      "HumSensor.h"          // Local
+#include      "SensorList.h"         // Local
 
 
 #define       BAUD_RATE              115200
@@ -22,20 +17,13 @@
 #define       AP_NAME_PREFIX         "SSC5_"
 
 
-String        progVersion           = "0.6.0";
+String        progVersion           = "0.7.0";
 Log           Log;                  // From Log.h (You cannot name it "log"; conflicts with math fucntion double log(double))
 AppConfig     config;               // From Config.h, using default SPIFFS file name.
 WiFiClient    client;
 PubSubClient  mqttClient(client);
 MQTT          mqtt(mqttClient);
-
-
-VccSensor*    vccSensor;
-PirSensor*    pirSensor;
-LuxSensor*    luxSensor;
-TempSensor*   tmpSensor;
-HumSensor*    humSensor;
-
+SensorList*   sensors;
 bool          initialized           = false;            // Set to true if Config works as expected
 
 
@@ -72,7 +60,7 @@ void initializeWiFi(bool reset = false) {
   // ESP + ChipID and goes into a blocking loop awaiting configuration
   Log.info("Connecting...");
   String apName = AP_NAME_PREFIX;
-  apName += config.name();
+  apName += config.name;
   wifiManager.autoConnect(apName.c_str());
   
   //if you get here you have connected to the WiFi
@@ -95,7 +83,7 @@ void initializeMQTT(const char* brokerHost) {
   bool hasMQTT = WiFi.hostByName(brokerHost, addr);
   if(hasMQTT) {
     Log.info("Initializing MQTT.\n");
-    mqtt.config(config.name(), addr.toString(), 1883, false);
+    mqtt.config(config.name, addr.toString(), 1883, false);
   }
 }
 
@@ -117,26 +105,8 @@ bool initializeConfig() {
 
 
 void initializeSensors() {
-    pirSensor = new PirSensor(config, mqtt, Log, "pir");
-    if(!pirSensor->init()) {
-      Log.error("Error initializing PIR Sensor\n");
-    }
-    vccSensor = new VccSensor(config, mqtt, Log, "vcc");
-    if(!vccSensor->init()) {
-      Log.error("Error initializing VCC Sensor\n");
-    }
-    luxSensor = new LuxSensor(config, mqtt, Log, "lux");
-    if(!luxSensor->init()) {
-      Log.error("Error initializing Lux Sensor\n");
-    }
-    tmpSensor = new TempSensor(config, mqtt, Log, "temp");
-    if(!tmpSensor->init()) {
-      Log.error("Error initializing Tempurature Sensor\n");
-    }
-    humSensor = new HumSensor(config, mqtt, Log, "hum");
-    if(!humSensor->init()) {
-      Log.error("Error initializing Humidity Sensor\n");
-    }
+  sensors = new SensorList(config, mqtt, Log);
+  sensors->init();
 }
 
 
@@ -148,7 +118,7 @@ void setup() {
     Log.info("Configuration successful.\n");
     initializeSensors();
     initializeWiFi();
-    initializeMQTT(config.broker());
+    initializeMQTT(config.broker);
   }
 }
 
@@ -161,28 +131,15 @@ void loop() {
   }
 
   // Calculate how long to keep looping:
-  time_t loop_limit = millis() + config.delay();
+  time_t loop_limit = millis() + config.delay;
 
-  vccSensor->begin();
-  pirSensor->begin();
-  luxSensor->begin();
-  tmpSensor->begin();
-  humSensor->begin();
+  sensors->begin();
   
   while(millis() < loop_limit) {
     mqtt.ensureConnection();
-
-    vccSensor->read();
-    pirSensor->read();
-    luxSensor->read();
-    tmpSensor->read();
-    humSensor->read();
-    delay(1000);
+    sensors->read();
+    delay(500);
   }
 
-  vccSensor->report();
-  pirSensor->report();
-  luxSensor->report();
-  tmpSensor->report();
-  humSensor->report();
+  sensors->report();
 }

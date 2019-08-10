@@ -44,6 +44,8 @@ bool Config::init() {
         configFile.readBytes(buf, size);
         configFile.close();
         Log.debug("Read %d bytes.\n", size);
+        Log.verbose(buf);
+        Log.verbose();
 
         // Walk through the buffer, discarding comments and reading settings.
         char* p = strtok(buf, "\n");

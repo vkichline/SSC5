@@ -2,3 +2,10 @@
 Name=Library
 Broker=ThingOne.local
 Delay=30000
+VccSensor=true
+PirSensor=true
+LuxSensor=true
+TempSensor=true
+HumSensor=true
+BaroSensor=false
+VibeSensor=true

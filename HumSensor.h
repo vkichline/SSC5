@@ -4,7 +4,7 @@
 #include <WEMOS_SHT3X.h>  // https://github.com/wemos/WEMOS_SHT3x_Arduino_Library
 
 
-class HumSensor : Sensor {  
+class HumSensor : public Sensor {  
   public:
     HumSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}

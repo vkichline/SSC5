@@ -15,7 +15,7 @@ class Sensor {
       config(configParam), mqtt(mqttParam), logger(logParam), name(nameParam)
     {
       this->feedName = "sensors/";
-      this->feedName += config.name();
+      this->feedName += config.name;
       this->feedName += "/";
       this->feedName += this->name;
       logger.info("Created Sensor '%s' with feed name '%s'\n", this->name, this->feedName.c_str());

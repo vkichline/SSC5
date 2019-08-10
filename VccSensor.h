@@ -5,7 +5,7 @@
 
 ADC_MODE(ADC_VCC);  // Set up chip to report VCC voltage on AO using ESP.getVcc()
 
-class VccSensor : Sensor {  
+class VccSensor : public Sensor {  
   public:
     VccSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}

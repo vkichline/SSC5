@@ -14,22 +14,20 @@ class AppConfig : Config {
     // properties we need and set up accessors to them.
     bool init ();
 
-    const char* name() {
-      return this->_name.c_str();
-    }
-
-    const char* broker() {
-      return this->_broker.c_str();
-    }
-
-    int delay() {
-      return this->_delay;
-    }
+    const char*   name;
+    const char*   broker;
+    int           delay;
+    bool          enableVccSensor;
+    bool          enablePirSensor;
+    bool          enableLuxSensor;
+    bool          enableTempSensor;
+    bool          enableHumSensor;
+    bool          enableBaroSensor;
+    bool          enableVibeSensor;
 
   private:
-    String  _name;
-    String  _broker;
-    int     _delay;
+    bool          fetch(const char* name, const char** value);
+    bool          toBool(const char* value);
 };
 
 #endif // FILE_APPCONFIG_H

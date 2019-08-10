@@ -4,7 +4,7 @@
 #include "Sensor.h"
 #include <BH1750.h>
 
-class LuxSensor : Sensor {
+class LuxSensor : public Sensor {
   public:
     LuxSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}

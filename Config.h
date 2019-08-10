@@ -17,6 +17,13 @@
 //  NAME=TestRig
 //  BROKER=ThingOne.local
 //  DELAY=30000
+//  VccSensor=true
+//  PirSensor=true
+//  LuxSensor=true
+//  TempSensor=true
+//  HumSensor=true
+//  BaroSensor=false
+//  VibeSensor=false
 //
 // Class usage:
 // Class is initialized with an optional config file name:

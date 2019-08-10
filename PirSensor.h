@@ -4,7 +4,7 @@
 
 #include "Sensor.h"
 
-class PirSensor : Sensor {  
+class PirSensor : public Sensor {  
   public:
     PirSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
