@@ -23,12 +23,12 @@ class LuxSensor : Sensor {
 
     void read() {
       if(sensor->begin()) {
+        count++;
         val += sensor->readLightLevel();
       }
       else {
         logger.error("Error reading BH1750 sensor.\n");
       }
-      count++;
       logger.verbose("Sensor: %s - count = %d, val = %d\n", name, count, val);
     }
 

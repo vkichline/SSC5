@@ -7,13 +7,14 @@
 #include      <DNSServer.h>
 #include      <ESP8266WebServer.h>
 #include      <WiFiManager.h>        // https://github.com/tzapu/WiFiManager
-#include      <WEMOS_SHT3X.h>        // https://github.com/wemos/WEMOS_SHT3x_Arduino_Library
 #include      "Log.h"                // Local
 #include      "MQTT.h"               // Local
 #include      "AppConfig.h"          // Local
 #include      "VccSensor.h"          // Local
 #include      "PirSensor.h"          // Local
 #include      "LuxSensor.h"          // Local
+#include      "TempSensor.h"         // Local
+#include      "HumSensor.h"          // Local
 
 
 #define       BAUD_RATE              115200
@@ -21,22 +22,21 @@
 #define       AP_NAME_PREFIX         "SSC5_"
 
 
-String        progVersion           = "0.5.2";
+String        progVersion           = "0.6.0";
 Log           Log;                  // From Log.h (You cannot name it "log"; conflicts with math fucntion double log(double))
 AppConfig     config;               // From Config.h, using default SPIFFS file name.
 WiFiClient    client;
 PubSubClient  mqttClient(client);
 MQTT          mqtt(mqttClient);
 
-SHT3X         sht30(0x45);                              // Tempurature/humidity shield
 
 VccSensor*    vccSensor;
 PirSensor*    pirSensor;
 LuxSensor*    luxSensor;
+TempSensor*   tmpSensor;
+HumSensor*    humSensor;
 
 bool          initialized           = false;            // Set to true if Config works as expected
-String        feed_Temp;                                // Set up in initMQTTFeeds
-String        feed_Hum;                                 // Set up in initMQTTFeeds
 
 
 // Callback from WiFiManager when the AP is being started for picking network.
@@ -87,20 +87,6 @@ void initializeWiFi(bool reset = false) {
 }
 
 
-// Once the configuration has been read, set up the global feed names.
-//
-void initMQTTFeeds() {
-  feed_Temp = "sensors/";
-  feed_Temp += config.name();
-  feed_Temp += "/temp";
-  Log.info("feed_Temp set to %s\n", feed_Temp.c_str());
-  feed_Hum = "sensors/";
-  feed_Hum += config.name();
-  feed_Hum += "/hum";
-  Log.info("feed_Hum set to %s\n", feed_Hum.c_str());
-}
-
-
 // Find and initalize MQTT
 //
 void initializeMQTT(const char* brokerHost) {
@@ -108,7 +94,6 @@ void initializeMQTT(const char* brokerHost) {
   IPAddress addr;
   bool hasMQTT = WiFi.hostByName(brokerHost, addr);
   if(hasMQTT) {
-    initMQTTFeeds();
     Log.info("Initializing MQTT.\n");
     mqtt.config(config.name(), addr.toString(), 1883, false);
   }
@@ -131,13 +116,7 @@ bool initializeConfig() {
 }
 
 
-void setup() {
-  Log.init(BAUD_RATE, LOG_LEVEL);
-  Log.info("\nSystem startup: version %s\n", progVersion.c_str());
-  initialized = initializeConfig();
-  if(initialized) {
-    Log.info("Configuration successful.\n");
-    
+void initializeSensors() {
     pirSensor = new PirSensor(config, mqtt, Log, "pir");
     if(!pirSensor->init()) {
       Log.error("Error initializing PIR Sensor\n");
@@ -150,7 +129,24 @@ void setup() {
     if(!luxSensor->init()) {
       Log.error("Error initializing Lux Sensor\n");
     }
+    tmpSensor = new TempSensor(config, mqtt, Log, "temp");
+    if(!tmpSensor->init()) {
+      Log.error("Error initializing Tempurature Sensor\n");
+    }
+    humSensor = new HumSensor(config, mqtt, Log, "hum");
+    if(!humSensor->init()) {
+      Log.error("Error initializing Humidity Sensor\n");
+    }
+}
 
+
+void setup() {
+  Log.init(BAUD_RATE, LOG_LEVEL);
+  Log.info("\nSystem startup: version %s\n", progVersion.c_str());
+  initialized = initializeConfig();
+  if(initialized) {
+    Log.info("Configuration successful.\n");
+    initializeSensors();
     initializeWiFi();
     initializeMQTT(config.broker());
   }
@@ -160,54 +156,33 @@ void loop() {
   if(!initialized) {
     Log.error("System not initialized/configured.\n");
     delay(60000);
+    initialized = initializeConfig();
     return;
   }
 
   // Calculate how long to keep looping:
   time_t loop_limit = millis() + config.delay();
-  int    loop_count = 0;
-  float  temp       = 0.0;
-  float  hum        = 0.0;
 
   vccSensor->begin();
   pirSensor->begin();
   luxSensor->begin();
+  tmpSensor->begin();
+  humSensor->begin();
   
   while(millis() < loop_limit) {
     mqtt.ensureConnection();
 
-    if(0 == sht30.get()) {
-      // Detect and accumulate the tempurature
-      temp += sht30.fTemp;
-      // Detect and accumulate humidity
-      hum += sht30.humidity;
-    }
-    else {
-      Log.error("Error reading SHT30 sensor.\n");
-    }
-
     vccSensor->read();
     pirSensor->read();
     luxSensor->read();
-
-    loop_count++;
-    Log.debug("Sample loop. Count = %d, temp = %f, hum = %f\n", loop_count, temp, hum);
+    tmpSensor->read();
+    humSensor->read();
     delay(1000);
   }
 
-  if(0 < loop_count) {
-    // Report the tempurature
-    temp /= (float)loop_count;
-    Log.info("Temp: %3.2f F\n", temp);
-    mqtt.publishFloat(feed_Temp, temp, 1);
-  
-    // Report the humidity
-    hum /= (float)loop_count;
-    Log.info("Hum: %3.2f%% RH\n", hum);
-    mqtt.publishFloat(feed_Hum, hum, 1);
-
-    vccSensor->report();
-    pirSensor->report();
-    luxSensor->report();
-  }
+  vccSensor->report();
+  pirSensor->report();
+  luxSensor->report();
+  tmpSensor->report();
+  humSensor->report();
 }

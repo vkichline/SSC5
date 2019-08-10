@@ -24,7 +24,7 @@ class VccSensor : Sensor {
     void read() {
       val += (ESP.getVcc() / 1000.0);
       count++;
-      logger.verbose("Sensor: %s - count = %d, val = %d\n", name, count, val);
+      logger.verbose("Sensor: %s - count = %d, val = %f\n", name, count, val);
     }
 
     void report() {
