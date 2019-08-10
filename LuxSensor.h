@@ -29,7 +29,7 @@ class LuxSensor : public Sensor {
       else {
         logger.error("Error reading BH1750 sensor.\n");
       }
-      logger.verbose("Sensor: %s - count = %d, val = %d\n", name, count, val);
+      logger.debug("Sensor: %s - count = %d, val = %d\n", name, count, val);
     }
 
     void report() {

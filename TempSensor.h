@@ -18,7 +18,7 @@ class TempSensor : public Sensor {
     void begin() {
       logger.verbose("TempSensor::begin()\n");
       count = 0;
-      val   = 0;
+      val   = 0.0;
     }
 
     void read() {
@@ -32,7 +32,7 @@ class TempSensor : public Sensor {
       else {
         logger.error("Error reading SHT30 sensor.\n");
       }
-      logger.verbose("Sensor: %s - count = %d, val = %f\n", name, count, val);
+      logger.debug("Sensor: %s - count = %d, val = %f\n", name, count, val);
     }
 
     void report() {
@@ -47,5 +47,5 @@ class TempSensor : public Sensor {
     private:
       SHT3X*  sensor;        // Tempurature/humidity shield
       int     count = 0;
-      float   val   = 0;
+      float   val   = 0.0;
 };

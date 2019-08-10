@@ -18,13 +18,13 @@ class VccSensor : public Sensor {
     void begin() {
       logger.verbose("VccSensor::begin()\n");
       count = 0;
-      val   = 0;
+      val   = 0.0;
     }
 
     void read() {
       val += (ESP.getVcc() / 1000.0);
       count++;
-      logger.verbose("Sensor: %s - count = %d, val = %f\n", name, count, val);
+      logger.debug("Sensor: %s - count = %d, val = %f\n", name, count, val);
     }
 
     void report() {
@@ -37,6 +37,6 @@ class VccSensor : public Sensor {
     }
 
     private:
-      int       count   = 0;
-      float     val     = 0;
+      int   count = 0;
+      float val   = 0.0;
 };

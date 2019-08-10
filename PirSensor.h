@@ -26,7 +26,7 @@ class PirSensor : public Sensor {
         val++;
       }
       count++;
-      logger.verbose("Sensor: %s - count = %d, val = %d\n", name, count, val);
+      logger.debug("Sensor: %s - count = %d, val = %d\n", name, count, val);
     }
 
     void report() {

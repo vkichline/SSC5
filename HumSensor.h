@@ -30,7 +30,7 @@ class HumSensor : public Sensor {
       else {
         logger.error("Error reading SHT30 sensor.\n");
       }
-      logger.verbose("Sensor: %s - count = %d, val = %f\n", name, count, val);
+      logger.debug("Sensor: %s - count = %d, val = %f\n", name, count, val);
     }
 
     void report() {
