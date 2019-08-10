@@ -8,12 +8,12 @@
 #include      <ESP8266WebServer.h>
 #include      <WiFiManager.h>        // https://github.com/tzapu/WiFiManager
 #include      <WEMOS_SHT3X.h>        // https://github.com/wemos/WEMOS_SHT3x_Arduino_Library
-#include      <BH1750.h>
 #include      "Log.h"                // Local
 #include      "MQTT.h"               // Local
 #include      "AppConfig.h"          // Local
-#include      "PirSensor.h"          // Local
 #include      "VccSensor.h"          // Local
+#include      "PirSensor.h"          // Local
+#include      "LuxSensor.h"          // Local
 
 
 #define       BAUD_RATE              115200
@@ -21,6 +21,7 @@
 #define       AP_NAME_PREFIX         "SSC5_"
 
 
+String        progVersion           = "0.5.2";
 Log           Log;                  // From Log.h (You cannot name it "log"; conflicts with math fucntion double log(double))
 AppConfig     config;               // From Config.h, using default SPIFFS file name.
 WiFiClient    client;
@@ -28,16 +29,14 @@ PubSubClient  mqttClient(client);
 MQTT          mqtt(mqttClient);
 
 SHT3X         sht30(0x45);                              // Tempurature/humidity shield
-BH1750        light(0x23);                              // Ambient light shield
 
 VccSensor*    vccSensor;
 PirSensor*    pirSensor;
+LuxSensor*    luxSensor;
 
 bool          initialized           = false;            // Set to true if Config works as expected
-String        progVersion           = "0.5.2";
 String        feed_Temp;                                // Set up in initMQTTFeeds
 String        feed_Hum;                                 // Set up in initMQTTFeeds
-String        feed_Lux;                                 // Set up in initMQTTFeeds
 
 
 // Callback from WiFiManager when the AP is being started for picking network.
@@ -99,10 +98,6 @@ void initMQTTFeeds() {
   feed_Hum += config.name();
   feed_Hum += "/hum";
   Log.info("feed_Hum set to %s\n", feed_Hum.c_str());
-  feed_Lux = "sensors/";
-  feed_Lux += config.name();
-  feed_Lux += "/lux";
-  Log.info("feed_Lux set to %s\n", feed_Lux.c_str());
 }
 
 
@@ -151,6 +146,10 @@ void setup() {
     if(!vccSensor->init()) {
       Log.error("Error initializing VCC Sensor\n");
     }
+    luxSensor = new LuxSensor(config, mqtt, Log, "lux");
+    if(!luxSensor->init()) {
+      Log.error("Error initializing Lux Sensor\n");
+    }
 
     initializeWiFi();
     initializeMQTT(config.broker());
@@ -169,10 +168,10 @@ void loop() {
   int    loop_count = 0;
   float  temp       = 0.0;
   float  hum        = 0.0;
-  long   lux        = 0;
 
   vccSensor->begin();
   pirSensor->begin();
+  luxSensor->begin();
   
   while(millis() < loop_limit) {
     mqtt.ensureConnection();
@@ -186,18 +185,13 @@ void loop() {
     else {
       Log.error("Error reading SHT30 sensor.\n");
     }
-    if(light.begin()) {
-      lux += light.readLightLevel();
-    }
-    else {
-      Log.error("Error reading BH1750 sensor.\n");
-    }
 
-    vccSensor->detect();
-    pirSensor->detect();
+    vccSensor->read();
+    pirSensor->read();
+    luxSensor->read();
 
     loop_count++;
-    Log.debug("Sample loop. Count = %d, temp = %f, hum = %f, lux = %d\n", loop_count, temp, hum, lux);
+    Log.debug("Sample loop. Count = %d, temp = %f, hum = %f\n", loop_count, temp, hum);
     delay(1000);
   }
 
@@ -212,12 +206,8 @@ void loop() {
     Log.info("Hum: %3.2f%% RH\n", hum);
     mqtt.publishFloat(feed_Hum, hum, 1);
 
-    // Report the light level
-    lux /= loop_count;
-    Log.info("Lux: %d Lux\n", lux);
-    mqtt.publishInt(feed_Lux, lux);
-
     vccSensor->report();
     pirSensor->report();
+    luxSensor->report();
   }
 }

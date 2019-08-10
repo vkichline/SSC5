@@ -23,7 +23,7 @@ class Sensor {
     virtual bool init() { return true; }    // Called once, in setup. Return success of initialization
     
     virtual void begin() {}                 // Called at beginning of aquisition loop.
-    virtual void detect() {}                // Called repeadedly durring aquisition.
+    virtual void read() {}                  // Called repeadedly durring aquisition.
     virtual void report() {}                // Called at end of acquisition loop. Reports data to mqtt.
 
   protected:

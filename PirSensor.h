@@ -21,7 +21,7 @@ class PirSensor : Sensor {
       val   = 0;
     }
 
-    void detect() {
+    void read() {
       if(HIGH == digitalRead(PirPin)) {
         val++;
       }
