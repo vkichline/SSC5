@@ -13,6 +13,7 @@
 #include      "MQTT.h"               // Local
 #include      "AppConfig.h"          // Local
 #include      "PirSensor.h"          // Local
+#include      "VccSensor.h"          // Local
 
 
 #define       BAUD_RATE              115200
@@ -29,11 +30,11 @@ MQTT          mqtt(mqttClient);
 SHT3X         sht30(0x45);                              // Tempurature/humidity shield
 BH1750        light(0x23);                              // Ambient light shield
 
+VccSensor*    vccSensor;
 PirSensor*    pirSensor;
 
 bool          initialized           = false;            // Set to true if Config works as expected
-String        progVersion           = "0.4.1";
-String        feed_Vcc;                                 // Set up in initMQTTFeeds
+String        progVersion           = "0.5.2";
 String        feed_Temp;                                // Set up in initMQTTFeeds
 String        feed_Hum;                                 // Set up in initMQTTFeeds
 String        feed_Lux;                                 // Set up in initMQTTFeeds
@@ -90,10 +91,6 @@ void initializeWiFi(bool reset = false) {
 // Once the configuration has been read, set up the global feed names.
 //
 void initMQTTFeeds() {
-  feed_Vcc = "sensors/";
-  feed_Vcc += config.name();
-  feed_Vcc += "/vcc";
-  Log.info("feed_Vcc set to %s\n", feed_Vcc.c_str());
   feed_Temp = "sensors/";
   feed_Temp += config.name();
   feed_Temp += "/temp";
@@ -139,8 +136,6 @@ bool initializeConfig() {
 }
 
 
-ADC_MODE(ADC_VCC);  // Set up chip to report VCC voltage on AO using ESP.getVcc()
-
 void setup() {
   Log.init(BAUD_RATE, LOG_LEVEL);
   Log.info("\nSystem startup: version %s\n", progVersion.c_str());
@@ -152,6 +147,11 @@ void setup() {
     if(!pirSensor->init()) {
       Log.error("Error initializing PIR Sensor\n");
     }
+    vccSensor = new VccSensor(config, mqtt, Log, "vcc");
+    if(!vccSensor->init()) {
+      Log.error("Error initializing VCC Sensor\n");
+    }
+
     initializeWiFi();
     initializeMQTT(config.broker());
   }
@@ -167,18 +167,16 @@ void loop() {
   // Calculate how long to keep looping:
   time_t loop_limit = millis() + config.delay();
   int    loop_count = 0;
-  float  vcc        = 0.0;
   float  temp       = 0.0;
   float  hum        = 0.0;
   long   lux        = 0;
 
+  vccSensor->begin();
   pirSensor->begin();
   
   while(millis() < loop_limit) {
     mqtt.ensureConnection();
 
-    // Detect and accumulate the VCC voltage level:
-    vcc += (ESP.getVcc() / 1000.0);
     if(0 == sht30.get()) {
       // Detect and accumulate the tempurature
       temp += sht30.fTemp;
@@ -195,19 +193,15 @@ void loop() {
       Log.error("Error reading BH1750 sensor.\n");
     }
 
+    vccSensor->detect();
     pirSensor->detect();
 
     loop_count++;
-    Log.debug("Sample loop. Count = %d, vcc = %f, temp = %f, hum = %f, lux = %d\n", loop_count, vcc, temp, hum, lux);
+    Log.debug("Sample loop. Count = %d, temp = %f, hum = %f, lux = %d\n", loop_count, temp, hum, lux);
     delay(1000);
   }
 
   if(0 < loop_count) {
-    // Report Vcc
-    vcc /= (float)loop_count;
-    Log.info("VCC: %3.2fV\n", vcc);
-    mqtt.publishFloat(feed_Vcc, vcc, 2);
-  
     // Report the tempurature
     temp /= (float)loop_count;
     Log.info("Temp: %3.2f F\n", temp);
@@ -223,6 +217,7 @@ void loop() {
     Log.info("Lux: %d Lux\n", lux);
     mqtt.publishInt(feed_Lux, lux);
 
+    vccSensor->report();
     pirSensor->report();
   }
 }

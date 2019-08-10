@@ -17,8 +17,8 @@ class PirSensor : Sensor {
 
     void begin() {
       logger.verbose("PirSensor::begin()\n");
-      this->count = 0;
-      this->val   = 0;
+      count = 0;
+      val   = 0;
     }
 
     void detect() {
@@ -26,15 +26,15 @@ class PirSensor : Sensor {
         val++;
       }
       count++;
-      logger.verbose("Sensor: %s - count = %d, val = %d\n", this->name, this->count, this->val);
+      logger.verbose("Sensor: %s - count = %d, val = %d\n", name, count, val);
     }
 
     void report() {
-      if(0 < this->count) {
+      if(0 < count) {
         // Report the average PIR on time as %
-        float fPir = (float)(this->val) * 100.0 / (float)(this->count);
+        float fPir = (float)val * 100.0 / (float)count;
         logger.info("PIR: %3.2f%%\n", fPir);
-        mqtt.publishFloat(this->feedName, fPir, 1);
+        mqtt.publishFloat(feedName, fPir, 1);
       }
     }
 
