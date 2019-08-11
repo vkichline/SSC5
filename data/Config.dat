@@ -7,5 +7,5 @@ PirSensor=true
 LuxSensor=true
 TempSensor=true
 HumSensor=true
-BaroSensor=false
+BaroSensor=true
 VibeSensor=true
