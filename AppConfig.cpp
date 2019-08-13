@@ -29,16 +29,17 @@ bool AppConfig::init () {
   if(ok) {
     const char* value;
 
-      if(fetch("Name", &value))       { name = value; }
-      if(fetch("Broker", &value))     { broker = value; }
-      if(fetch("Delay", &value))      { delay = atoi(value); }
-      if(fetch("VccSensor", &value))  { enableVccSensor = toBool(value); }
-      if(fetch("PirSensor", &value))  { enablePirSensor = toBool(value); }
-      if(fetch("LuxSensor", &value))  { enableLuxSensor = toBool(value); }
-      if(fetch("TempSensor", &value)) { enableTempSensor = toBool(value); }
-      if(fetch("HumSensor", &value))  { enableHumSensor = toBool(value); }
-      if(fetch("BaroSensor", &value)) { enableBaroSensor = toBool(value); }
-      if(fetch("VibeSensor", &value)) { enableVibeSensor = toBool(value); }
+      if(fetch("Name", &value))        { name = value; }
+      if(fetch("Broker", &value))      { broker = value; }
+      if(fetch("Delay", &value))       { delay = atoi(value); }
+      if(fetch("VccSensor", &value))   { enableVccSensor = toBool(value); }
+      if(fetch("PirSensor", &value))   { enablePirSensor = toBool(value); }
+      if(fetch("LuxSensor", &value))   { enableLuxSensor = toBool(value); }
+      if(fetch("TempSensor", &value))  { enableTempSensor = toBool(value); }
+      if(fetch("HumSensor", &value))   { enableHumSensor = toBool(value); }
+      if(fetch("BaroSensor", &value))  { enableBaroSensor = toBool(value); }
+      if(fetch("VibeSensor", &value))  { enableVibeSensor = toBool(value); }
+      if(fetch("RadarSensor", &value)) { enableRadarSensor = toBool(value); }
   }
   return ok;
 }

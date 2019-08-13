@@ -17,7 +17,7 @@
 #define       AP_NAME_PREFIX         "SSC5_"
 
 
-String        progVersion           = "0.7.0";
+String        progVersion           = "0.8.0";
 Log           Log;                  // From Log.h (You cannot name it "log"; conflicts with math fucntion double log(double))
 AppConfig     config;               // From Config.h, using default SPIFFS file name.
 WiFiClient    client;

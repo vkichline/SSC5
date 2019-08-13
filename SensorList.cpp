@@ -7,6 +7,8 @@
 #include "HumSensor.h"
 #include "BaroSensor.h"
 #include "VibeSensor.h"
+#include "RadarSensor.h"
+
 
 // Create the array of Sensors.
 //
@@ -14,25 +16,27 @@ SensorList::SensorList(AppConfig& configParam, MQTT& mqttParam, Log& logParam) :
   config(configParam), mqtt(mqttParam), logger(logParam) {
   // Determine how large to make the sensor array:
   numSensors = 0;
-  if(config.enableVccSensor)  numSensors++;
-  if(config.enablePirSensor)  numSensors++;
-  if(config.enableLuxSensor)  numSensors++;
-  if(config.enableTempSensor) numSensors++;
-  if(config.enableHumSensor)  numSensors++;
-  if(config.enableBaroSensor) numSensors++;
-  if(config.enableVibeSensor) numSensors++;
+  if(config.enableVccSensor)   numSensors++;
+  if(config.enablePirSensor)   numSensors++;
+  if(config.enableLuxSensor)   numSensors++;
+  if(config.enableTempSensor)  numSensors++;
+  if(config.enableHumSensor)   numSensors++;
+  if(config.enableBaroSensor)  numSensors++;
+  if(config.enableVibeSensor)  numSensors++;
+  if(config.enableRadarSensor) numSensors++;
   logger.verbose("Creating an array of %d sensors.\n", numSensors);
   sensors = new Sensor*[numSensors];
 
   // Fill in the list.
   int i = 0;
-  if(config.enableVccSensor)  sensors[i++] = new VccSensor(configParam, mqttParam, logParam, "vcc");
-  if(config.enablePirSensor)  sensors[i++] = new PirSensor(configParam, mqttParam, logParam, "pir");
-  if(config.enableLuxSensor)  sensors[i++] = new LuxSensor(configParam, mqttParam, logParam, "lux");
-  if(config.enableTempSensor) sensors[i++] = new TempSensor(configParam, mqttParam, logParam, "temp");
-  if(config.enableHumSensor)  sensors[i++] = new HumSensor(configParam, mqttParam, logParam, "hum");
-  if(config.enableBaroSensor) sensors[i++] = new BaroSensor(configParam, mqttParam, logParam, "baro");
-  if(config.enableVibeSensor) sensors[i++] = new VibeSensor(configParam, mqttParam, logParam, "vibe");
+  if(config.enableVccSensor)   sensors[i++] = new VccSensor(configParam, mqttParam, logParam, "vcc");
+  if(config.enablePirSensor)   sensors[i++] = new PirSensor(configParam, mqttParam, logParam, "pir");
+  if(config.enableLuxSensor)   sensors[i++] = new LuxSensor(configParam, mqttParam, logParam, "lux");
+  if(config.enableTempSensor)  sensors[i++] = new TempSensor(configParam, mqttParam, logParam, "temp");
+  if(config.enableHumSensor)   sensors[i++] = new HumSensor(configParam, mqttParam, logParam, "hum");
+  if(config.enableBaroSensor)  sensors[i++] = new BaroSensor(configParam, mqttParam, logParam, "baro");
+  if(config.enableVibeSensor)  sensors[i++] = new VibeSensor(configParam, mqttParam, logParam, "vibe");
+  if(config.enableRadarSensor) sensors[i++] = new RadarSensor(configParam, mqttParam, logParam, "radar");
 }
 
 bool SensorList::init() {

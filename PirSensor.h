@@ -1,7 +1,8 @@
 //  Passive Infrared Sensor
 //  Implemented with Wemos PIR Shield
-//  PIR data is on D3
+//  PIR input is defined in Pins.h
 
+#include "Pins.h"
 #include "Sensor.h"
 
 class PirSensor : public Sensor {  
@@ -10,7 +11,7 @@ class PirSensor : public Sensor {
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {
-      pinMode(PirPin, INPUT);  // Wemos PIR shield, standarddigial input for rev 1.0.0
+      pinMode(PirPin, INPUT);  // Wemos PIR shield
       logger.verbose("Initialized PirSensor\n");
       return true;
     }
@@ -39,7 +40,7 @@ class PirSensor : public Sensor {
     }
 
     private:
-      const int PirPin  = D3;
+      const int PirPin  = PIR_INPUT_PIN;
       int       count   = 0;
       int       val     = 0;
 };

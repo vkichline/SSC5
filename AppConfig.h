@@ -24,6 +24,7 @@ class AppConfig : Config {
     bool          enableHumSensor;
     bool          enableBaroSensor;
     bool          enableVibeSensor;
+    bool          enableRadarSensor;
 
   private:
     bool          fetch(const char* name, const char** value);
