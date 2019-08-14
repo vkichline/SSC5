@@ -1,4 +1,5 @@
-//  Sensor to read barameter sensor in InHg
+//  Sensor to read barometer sensor in InHg
+// Using Wemos Barometric Pressure shield
 
 #include "Sensor.h"
 #include <LOLIN_HP303B.h>
@@ -37,7 +38,7 @@ class BaroSensor : public Sensor {
 
     void report() {
       if(0 < count) {
-        // Report the average baro pressure over time
+        // Report the average barometric pressure over time
         val /= (float)count;
         logger.info("Pressure: %3.2f InHg\n", val);
         mqtt.publishFloat(feedName, val, 1);
@@ -45,7 +46,7 @@ class BaroSensor : public Sensor {
     }
 
     private:
-      LOLIN_HP303B  HP303BPressureSensor; // Wemos Barometeric Pressure shield
+      LOLIN_HP303B  HP303BPressureSensor; // Wemos Barometric Pressure shield
       const int16_t oversampling  = 7;    // Maximum oversampling.
       int           count         = 0;
       float         val           = 0.0;

@@ -34,7 +34,7 @@
 // bool initialized = config.init();
 // All values are read into a linked list of ConfigParams.
 //
-// Configuration data is retreived by property name. The boolean result is true if valid.
+// Configuration data is retrieved by property name. The boolean result is true if valid.
 // If null is provided for the string pointer, it is not modified, only the return value is set.
 // If the accessor returns true and a const char** is provided, the char* is set to the
 // c_str of the value pointer.

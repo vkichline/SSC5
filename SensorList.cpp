@@ -41,7 +41,7 @@ SensorList::SensorList(AppConfig& configParam, MQTT& mqttParam, Log& logParam) :
 
 bool SensorList::init() {
   bool result = true;
-  logger.verbose("SensorList::init: Itterating over %d items.\n", numSensors);
+  logger.verbose("SensorList::init: Iterating over %d items.\n", numSensors);
   for(int i = 0; i < numSensors; i++) {
     if(!sensors[i]->init()) {
       result = false;
@@ -51,21 +51,21 @@ bool SensorList::init() {
 }
 
 void SensorList::begin() {
-  logger.verbose("SensorList::begin: Itterating over %d items.\n", numSensors);
+  logger.verbose("SensorList::begin: Iterating over %d items.\n", numSensors);
   for(int i = 0; i < numSensors; i++) {
     sensors[i]->begin();
   }
 }
 
 void SensorList::read() {
-  logger.verbose("SensorList::read: Itterating over %d items.\n", numSensors);
+  logger.verbose("SensorList::read: Iterating over %d items.\n", numSensors);
   for(int i = 0; i < numSensors; i++) {
     sensors[i]->read();
   }
 }
 
 void SensorList::report() {
-  logger.verbose("SensorList::report: Itterating over %d items.\n", numSensors);
+  logger.verbose("SensorList::report: Iterating over %d items.\n", numSensors);
   for(int i = 0; i < numSensors; i++) {
     sensors[i]->report();
   }

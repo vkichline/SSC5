@@ -17,7 +17,7 @@
 #define       AP_NAME_PREFIX         "SSC5_"
 
 
-String        progVersion           = "0.8.0";
+String        progVersion           = "0.8.1";
 Log           Log;                  // From Log.h (You cannot name it "log"; conflicts with math fucntion double log(double))
 AppConfig     config;               // From Config.h, using default SPIFFS file name.
 WiFiClient    client;
@@ -39,7 +39,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 //
 void initializeWiFi(bool reset = false) {
   //WiFiManager
-  //Local intialization. Once its business is done, there is no need to keep it around
+  //Local initialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
   //reset saved settings (for testing)
   if(reset) {
@@ -51,7 +51,7 @@ void initializeWiFi(bool reset = false) {
   // Allow us to set display when in AP mode
   // wifiManager.setAPCallback(configModeCallback);
 
-  //set minimu quality of signal so it ignores AP's under that quality
+  //set minimum quality of signal so it ignores AP's under that quality
   //defaults to 8%
   wifiManager.setMinimumSignalQuality();
 
@@ -75,7 +75,7 @@ void initializeWiFi(bool reset = false) {
 }
 
 
-// Find and initalize MQTT
+// Find and initialize MQTT
 //
 void initializeMQTT(const char* brokerHost) {
   // One time only: look up MQTT Broker IP Address from name:
@@ -88,7 +88,7 @@ void initializeMQTT(const char* brokerHost) {
 }
 
 
-// Initialize the configuration syste,m reading settings from SPIFFS.
+// Initialize the configuration system reading settings from SPIFFS.
 // Return false if initialization failed.
 //
 bool initializeConfig() {

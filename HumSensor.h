@@ -1,4 +1,4 @@
-//  Sensor to read WEMOS_SHT3X tempurature/humidity sensor for humidity
+//  Sensor to read WEMOS_SHT3X temperature/humidity sensor for humidity
 
 #include "Sensor.h"
 #include <WEMOS_SHT3X.h>  // https://github.com/wemos/WEMOS_SHT3x_Arduino_Library
@@ -43,7 +43,7 @@ class HumSensor : public Sensor {
     }
 
     private:
-      SHT3X*  sensor;        // Tempurature/humidity shield
+      SHT3X*  sensor;        // Temperature/humidity shield
       int     count = 0;
       float   val   = 0;
 };
