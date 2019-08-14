@@ -6,7 +6,7 @@
 
 class MQTT {
   public:
-    MQTT(PubSubClient client);
+    MQTT(PubSubClient* client, Log logger);
     void config(String clientID, String broker, int port, bool suppress);
     void ensureConnection();
     bool idle();
@@ -16,10 +16,10 @@ class MQTT {
     void publishInt(String topic, int val);
 
   private:
-    PubSubClient  mqttClient;
+    PubSubClient* mqttClient;
+    Log           logger;
     String        clientID;
     String        broker;
     int           port;
     bool          suppress = false;
 };
-

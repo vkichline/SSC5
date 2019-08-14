@@ -7,7 +7,7 @@
 
 class BaroSensor : public Sensor {
   public:
-    BaroSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    BaroSensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {

@@ -6,7 +6,7 @@
 
 class TempSensor : public Sensor {  
   public:
-    TempSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    TempSensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {

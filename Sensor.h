@@ -9,11 +9,11 @@
 class Sensor {
   public:
     // Initialize the sensor with mqtt provider, log object and sensor name.
-    Sensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    Sensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       config(configParam), mqtt(mqttParam), logger(logParam), name(nameParam)
     {
       this->feedName = "sensors/";
-      this->feedName += config.name;
+      this->feedName += config->name;
       this->feedName += "/";
       this->feedName += this->name;
       logger.info("Created Sensor '%s' with feed name '%s'\n", this->name, this->feedName.c_str());
@@ -25,7 +25,7 @@ class Sensor {
     virtual void report() {}                // Called at end of acquisition loop. Reports data to mqtt.
 
   protected:
-    AppConfig&  config;
+    AppConfig*  config;
     MQTT&       mqtt;
     Log&        logger;
     const char* name;

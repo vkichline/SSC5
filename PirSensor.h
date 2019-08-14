@@ -2,12 +2,12 @@
 //  Implemented with Wemos PIR Shield
 //  PIR input is defined in Pins.h
 
-#include "Pins.h"
+#include "Constants.h"
 #include "Sensor.h"
 
 class PirSensor : public Sensor {  
   public:
-    PirSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    PirSensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {

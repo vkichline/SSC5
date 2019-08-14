@@ -1,17 +1,15 @@
 #include "AppConfig.h"
-#include "Log.h"
 
-extern Log Log;
 
 //  Helper function for loading/logging properties
 //
 bool AppConfig::fetch(const char* name, const char** value) {
   if(this->get(name, value)) {
-    Log.debug("AppConfig::init: %s = %s.\n", name, *value);
+    logger.debug("AppConfig::init: %s = %s.\n", name, *value);
     return true;
   }
   else {
-    Log.error("Failure getting Name property.\n");
+    logger.error("Failure getting Name property.\n");
     return false;
   }
 }
@@ -24,8 +22,8 @@ bool AppConfig::toBool(const char* value) {
   return (0 == strcmp("true", value));
 }
 
-bool AppConfig::init () {
-  bool ok = this->Config::init();
+bool AppConfig::init (Log logger) {
+  bool ok = this->Config::init(logger);
   if(ok) {
     const char* value;
 

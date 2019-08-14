@@ -10,7 +10,7 @@ class AppConfig : Config {
   
     // In our init function, load the config file, then fish out all the
     // properties we need and set up accessors to them.
-    bool init ();
+    bool init (Log logger);
 
     const char*   name;
     const char*   broker;

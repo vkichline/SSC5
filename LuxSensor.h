@@ -6,7 +6,7 @@
 
 class LuxSensor : public Sensor {
   public:
-    LuxSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    LuxSensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {

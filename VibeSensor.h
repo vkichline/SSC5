@@ -8,7 +8,7 @@
 
 class VibeSensor : public Sensor {  
   public:
-    VibeSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    VibeSensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {

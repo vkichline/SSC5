@@ -2,12 +2,12 @@
 //  Implemented with RCWL-0516
 //  Radar input is defined in Pins.h
 
-#include "Pins.h"
+#include "Constants.h"
 #include "Sensor.h"
 
 class RadarSensor : public Sensor {  
   public:
-    RadarSensor(AppConfig& configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
+    RadarSensor(AppConfig* configParam, MQTT& mqttParam, Log& logParam, const char* nameParam) :
       Sensor(configParam, mqttParam, logParam, nameParam) {}
 
     bool init() {

@@ -1,17 +1,16 @@
 #include <FS.h>
 #include "Config.h"
-#include "Log.h"
-
-extern Log Log;
 
 
 Config::Config(const char* pConfigFileName) {
   configFileName = new char[strlen(pConfigFileName)+1];
   strcpy(configFileName, pConfigFileName);
+  this->logger = logger;
   configured = false;
 }
 
 Config::Config() {
+  this->logger = logger;
   configFileName = "/Config.dat";
   configured = false;
 }
@@ -31,18 +30,19 @@ void Config::add(ConfigParam* param) {
 
 //  Return true if Config.dat was read successfully
 //  false if not.
-bool Config::init() {
+bool Config::init(Log logger) {
+  this->logger = logger;
   if(configured) {
-    Log.error("Config Error: attempt to re-initialize.\n");
+    logger.error("Config Error: attempt to re-initialize.\n");
     return false;
   }
   if (SPIFFS.begin()) {
-    Log.debug("Config: mounted file system.\n");
+    logger.debug("Config: mounted file system.\n");
     if (SPIFFS.exists(configFileName)) {
-      Log.debug("Reading %s\n", configFileName);
+      logger.debug("Reading %s\n", configFileName);
       File configFile = SPIFFS.open(configFileName, "r");
       if (configFile) {
-        Log.debug("Config file opened.\n");
+        logger.debug("Config file opened.\n");
         size_t size = configFile.size();
         // Allocate a buffer to store contents of the file.
         char* buf = new char[size+1];
@@ -50,9 +50,9 @@ bool Config::init() {
 
         configFile.readBytes(buf, size);
         configFile.close();
-        Log.debug("Read %d bytes.\n", size);
-        Log.verbose(buf);
-        Log.verbose();
+        logger.debug("Read %d bytes.\n", size);
+        logger.verbose(buf);
+        logger.verbose();
 
         // Walk through the buffer, discarding comments and reading settings.
         char* p = strtok(buf, "\n");
@@ -60,18 +60,18 @@ bool Config::init() {
           // eliminate comments
           if('*' != p[0]) {
             // At this point, p points to a cstr that should be Name=Value
-            Log.debug("ENTRY: %s\n", p);
+            logger.debug("ENTRY: %s\n", p);
             // Entries are broken into name and value by the = sign, but strtok cannot be nested.
             char* pos = strchr(p, '=');
             if(NULL == pos) {
-              Log.error("Config error: no '=' found in %s\n", p);
+              logger.error("Config error: no '=' found in %s\n", p);
             }
             else {
               // Drop a NULL where the = sign was found.
               *pos = 0;
               const char* name  = p;
               const char* value = ++pos;
-              Log.info("Config: Adding ConfigParam: name=%s, value=%s\n", name, value);
+              logger.info("Config: Adding ConfigParam: name=%s, value=%s\n", name, value);
               add(new ConfigParam(name, value));
             }
           }
@@ -82,7 +82,7 @@ bool Config::init() {
       }
     }
     else {
-      Log.error("Failed to locate config file %s\n", configFileName);
+      logger.error("Failed to locate config file %s\n", configFileName);
     }
   }
   return false;
@@ -97,7 +97,7 @@ bool Config::init() {
 bool Config::get(const char* name, const char** value) {
   ConfigParam* params = head;
   while(NULL != params) {
-    // Log.debug("Config.get: Comparing %s with %s\n", name, params->name);
+    // logger.debug("Config.get: Comparing %s with %s\n", name, params->name);
     if(0 == strcmp(name, params->name)) {
       if(NULL != value) {
         *value = params->value;

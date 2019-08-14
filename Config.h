@@ -48,6 +48,7 @@
 
 #pragma once
 #include <WString.h>  // Used for NULL, strcmp, etc.
+#include "Log.h"      // Local
 
 
 struct ConfigParam {
@@ -71,11 +72,12 @@ class Config {
     Config(const char* configFileName);
     Config();
   
-    bool init();
+    bool init(Log logger);
     bool get(const char* name, const char** value);
 
   protected:
     void add(ConfigParam* param);
+    Log  logger;
     
   private:
     char*         configFileName;

@@ -18,7 +18,7 @@
 
 class SensorList {
   public:
-    SensorList(AppConfig& configParam, MQTT& mqttParam, Log& logParam);
+    SensorList(AppConfig* configParam, MQTT& mqttParam, Log& logParam);
 
     bool        init();    // Called from setup. Returns true if all inits succeed.
     void        begin();   // Called at beginning of aquisition loop.
@@ -28,7 +28,7 @@ class SensorList {
   protected:
     Sensor**    sensors;
     int         numSensors;
-    AppConfig&  config;
+    AppConfig*  config;
     MQTT&       mqtt;
     Log&        logger;
 };
