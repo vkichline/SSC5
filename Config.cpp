@@ -5,35 +5,42 @@
 extern Log Log;
 
 
-Config::Config(const char* configFileName) {
-  this->configFileName = configFileName;
+Config::Config(const char* pConfigFileName) {
+  configFileName = new char[strlen(pConfigFileName)+1];
+  strcpy(configFileName, pConfigFileName);
+  configured = false;
 }
 
 Config::Config() {
-  this->configFileName = F("/Config.dat");
+  configFileName = "/Config.dat";
+  configured = false;
 }
 
 
 void Config::add(ConfigParam* param) {
   // If the list is empty, this becomes the head and the tail:
-  if(NULL == this->tail) {
-    this->head = this->tail = param;
+  if(NULL == tail) {
+    head = tail = param;
   }
   // Otherwise, link param to the existing tail, and it becomes the tail.
   else {
-    this->tail->link(param);
-    this->tail = param;
+    tail->link(param);
+    tail = param;
   }
 }
 
 //  Return true if Config.dat was read successfully
 //  false if not.
 bool Config::init() {
+  if(configured) {
+    Log.error("Config Error: attempt to re-initialize.\n");
+    return false;
+  }
   if (SPIFFS.begin()) {
     Log.debug("Config: mounted file system.\n");
-    if (SPIFFS.exists(this->configFileName)) {
-      Log.debug("Reading %s\n", this->configFileName.c_str());
-      File configFile = SPIFFS.open(this->configFileName, "r");
+    if (SPIFFS.exists(configFileName)) {
+      Log.debug("Reading %s\n", configFileName);
+      File configFile = SPIFFS.open(configFileName, "r");
       if (configFile) {
         Log.debug("Config file opened.\n");
         size_t size = configFile.size();
@@ -52,28 +59,30 @@ bool Config::init() {
         while(NULL != p) {
           // eliminate comments
           if('*' != p[0]) {
-            String entry = p;
-            Log.debug("ENTRY: %s\n", entry.c_str());
-            // Entries are broken into name and value by the = sign.
-            int pos = entry.indexOf('=');
-            if(-1 == pos) {
-              Log.error("Config error: no '=' found in %s\n", entry.c_str());
+            // At this point, p points to a cstr that should be Name=Value
+            Log.debug("ENTRY: %s\n", p);
+            // Entries are broken into name and value by the = sign, but strtok cannot be nested.
+            char* pos = strchr(p, '=');
+            if(NULL == pos) {
+              Log.error("Config error: no '=' found in %s\n", p);
             }
             else {
-              String name = entry.substring(0, pos);
-              String value = entry.substring(pos+1);
-              Log.info("Config: Adding ConfigParam: name=%s, value=%s\n", name.c_str(), value.c_str());
-              this->add(new ConfigParam(name.c_str(), value.c_str()));
+              // Drop a NULL where the = sign was found.
+              *pos = 0;
+              const char* name  = p;
+              const char* value = ++pos;
+              Log.info("Config: Adding ConfigParam: name=%s, value=%s\n", name, value);
+              add(new ConfigParam(name, value));
             }
           }
           p = strtok(NULL, "\n");
         }
-        delete [] buf;
+        // NOTE: do NOT delete buffer!  // delete [] buf;
         return true;
       }
     }
     else {
-      Log.error("Failed to locate config file %s\n", this->configFileName.c_str());
+      Log.error("Failed to locate config file %s\n", configFileName);
     }
   }
   return false;
@@ -81,17 +90,17 @@ bool Config::init() {
 
 
 // Find the property with the name provided.
-// If found, return true.  If value is not null,
-// set value to the c_str pointer in the string value.
+// If found, return true.  If value is not NULL,
+// set value const char*.
 // If not found, return false and do not alter value.
 //
 bool Config::get(const char* name, const char** value) {
-  ConfigParam* params = this->head;
+  ConfigParam* params = head;
   while(NULL != params) {
-    // Log.debug("Config.get: Comparing %s with %s\n", name, params->name.c_str());
-    if(0 == strcmp(name, params->name.c_str())) {
+    // Log.debug("Config.get: Comparing %s with %s\n", name, params->name);
+    if(0 == strcmp(name, params->name)) {
       if(NULL != value) {
-        *value = params->value.c_str();
+        *value = params->value;
       }
       return true;
     }

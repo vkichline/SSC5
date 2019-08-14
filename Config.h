@@ -39,22 +39,29 @@
 // If the accessor returns true and a const char** is provided, the char* is set to the
 // c_str of the value pointer.
 // bool valid = config.get("DELAY", &valPtr);
+//
+// V2: No String objects are created in ConfigParams. The data buffer is read in once, and preserved.
+// The buffer is modified in memory to replace = signs and <cr>s with NULLs for in-place strings.
+// All references to names and values point to the buffer.  DO NOT MODIFY THEM.
+// This makes comments more expensive, but is the most memory efficient and causes least heap fragmentation.
+// The system is not expected to be initialized more than once. A guard is built in.
 
 #pragma once
-#include <WString.h>
+#include <WString.h>  // Used for NULL, strcmp, etc.
+
 
 struct ConfigParam {
-    ConfigParam(const char* name, const char* value) {
-      this->name = name;
-      this->value = value;
-      this->next = NULL;
+    ConfigParam(const char* pName, const char* pValue) {
+      name  = pName;
+      value = pValue;
+      next  = NULL;
     }
   
     void link(ConfigParam* pNext) {
-      this->next = pNext;
+      next = pNext;
     }
-    String        name;
-    String        value;
+    const char*   name;
+    const char*   value;
     ConfigParam*  next;
 };
 
@@ -71,7 +78,8 @@ class Config {
     void add(ConfigParam* param);
     
   private:
-    String        configFileName;
-    ConfigParam*  head = NULL;
-    ConfigParam*  tail = NULL;
+    char*         configFileName;
+    bool          configured  = false;
+    ConfigParam*  head        = NULL;
+    ConfigParam*  tail        = NULL;
 };
