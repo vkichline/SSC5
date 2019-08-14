@@ -1,8 +1,6 @@
 // Subclass of Config, customized for this SCC5 implementation.
 
-#ifndef FILE_APPCONFIG_H
-#define FILE_APPCONFIG_H
-
+#pragma once
 #include "Config.h"
 
 class AppConfig : Config {
@@ -30,5 +28,3 @@ class AppConfig : Config {
     bool          fetch(const char* name, const char** value);
     bool          toBool(const char* value);
 };
-
-#endif // FILE_APPCONFIG_H

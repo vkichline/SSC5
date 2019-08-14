@@ -1,11 +1,9 @@
 //  Base class for all sensors
 
+#pragma once
 #include  "Log.h"       // For reporting status and issues to output
 #include  "MQTT.h"      // For reporting values to message broker
 #include  "AppConfig.h" // Needed to construct feed name, probably other things as well.
-
-#ifndef FILE_SENSOR_H
-#define FILE_SENSOR_H
 
 
 class Sensor {
@@ -33,5 +31,3 @@ class Sensor {
     const char* name;
     String      feedName;
 };
-
-#endif // FILE_SENSOR_H

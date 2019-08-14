@@ -40,10 +40,7 @@
 // c_str of the value pointer.
 // bool valid = config.get("DELAY", &valPtr);
 
-#ifndef FILE_CONFIG_H
-#define FILE_CONFIG_H
-
-
+#pragma once
 #include <WString.h>
 
 struct ConfigParam {
@@ -78,5 +75,3 @@ class Config {
     ConfigParam*  head = NULL;
     ConfigParam*  tail = NULL;
 };
-
-#endif // FILE_CONFIG_H
