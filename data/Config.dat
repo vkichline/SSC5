@@ -2,7 +2,7 @@
 Name=Library
 Broker=ThingOne.local
 Delay=30000
-VccSensor=true
+VccSensor=false
 PirSensor=true
 LuxSensor=true
 TempSensor=true

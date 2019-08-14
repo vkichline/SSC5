@@ -79,7 +79,7 @@ class VibeSensor : public Sensor {
 
     private:
       const int     MPU_addr  = 0x68; // I2C address of the MPU-6050
-      const int16_t threshold = 300;  // Noise elimination
+      const int16_t threshold = 325;  // Noise elimination
       int           count     = 0;
       float         val       = 0.0;
       int16_t       last_x    = 0;
